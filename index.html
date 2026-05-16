@@ -306,7 +306,7 @@
           "你最想成為朋友中的誰？你想交換他的哪一個優點或生活部分？",
           "為了朋友曾經改變過什麼？你覺得這個改變值得嗎？",
           "跟朋友去最遠的地方是哪裡？中途有沒有發生過差點吵架分開走的插曲？",
-          "有沒有因為朋友的事情偷偷哭過？是為了什麼委屈或感動的事？",
+          "微有沒有因為朋友的事情偷偷哭過？是為了什麼委屈或感動的事？",
           "誰是用友圈的開心果？你覺得他私底下是真的快樂，還是裝出來的？",
           "朋友生日忘記過幾次？你是怎麼補救的？對方有發現你其實根本忘了嗎？",
           "最討厭朋友問你什麼問題？如果現場有人現在問你，你會翻臉嗎？",
@@ -393,7 +393,7 @@
           "哪個朋友最容易讓你說出好啦好啦我去？",
           "有沒有哪個朋友讓你覺得這個人出現在你生命裡是件很神奇的事？",
           "柔軟哪個朋友讓你覺得我也想在他心裡有一個重要的位置？",
-          "哪個朋友最容易突然冒出超棒的點子？",
+          "哪個朋友最容易突然冒成超棒的點子？",
           "有沒有哪次因為朋友，你做了一個完全沒想過的決定，結果還不錯？",
           "最想跟哪個朋友去旅行？理由是什麼？",
           "有沒有哪個朋友讓你覺得我希望老了我們還是朋友？",
@@ -483,7 +483,7 @@
           "你覺得現場哪兩個人其實最看對方不順眼、只是在大家面前做表面功夫？",
           "談戀愛時，你最不能接受伴侶做出什麼踩雷的事情？",
           "你有沒有因為嫉妒某個好朋友的成就、財富或感情，而曾在內心偷偷希望他搞砸過？",
-          "你相信純友誼嗎？你有記憶對在場的任何一個朋友產生過跨越友情的好感？",
+          "你相信純友誼嗎？你有對在場的任何一個朋友產生過跨越友情的好感？",
           "你交往過的人裡面，誰的性格最讓你滿意？誰最讓你覺得只是在耗日子？",
           "有沒有嘗試過瞞著另一半，私底下跟前男友或前女友單獨傳訊息聊天？",
           "你對開放式關係或精神出軌的真實看法是什麼？",
@@ -542,7 +542,7 @@
         let roomRef = null;
         let localCurrentQuestion = "";
 
-        // 【功能：新增自訂房號與防撞驗證的創建邏輯】
+        // 【🔥 核心修正：優化後的建立房間邏輯，完全避開舊版可能卡死的問題】
         function handleCreateRoom() {
             myName = document.getElementById('playerName').value.trim();
             let customRoom = document.getElementById('roomNumber').value.trim();
@@ -555,27 +555,34 @@
                 customRoom = Math.floor(1000 + Math.random() * 9000).toString();
             }
 
-            // 🛡️ 建立前先檢查這間房間是不是已經在開打中（防撞房）
-            db.ref('rooms/' + customRoom).once('value', (snapshot) => {
-                if (snapshot.exists() && snapshot.val().exists === true) {
-                    alert(`❌ 房號 [${customRoom}] 目前正有人在使用中！請換一個好記的數字，或者保持空白讓系統隨機分配。`);
-                    return;
+            currentRoomId = customRoom;
+            isHost = true;
+            roomRef = db.ref('rooms/' + currentRoomId);
+
+            // 直接執行事務寫入，這樣不論房間原先存不存在，100% 都會執行成功
+            roomRef.transaction((currentData) => {
+                // 如果房間已存在且正在玩，就回傳阻止（防撞房）
+                if (currentData && currentData.exists === true) {
+                    return; // 終止事務
                 }
-
-                currentRoomId = customRoom;
-                isHost = true;
-                roomRef = db.ref('rooms/' + currentRoomId);
-
-                roomRef.set({
+                // 否則，直接全新建立
+                return {
                     hostName: myName,
                     currentQuestion: "等待房長抽出震撼全場的第一道題目...",
                     pool: window.gameQuestions,
                     totalQuestions: window.gameQuestions.length,
                     exists: true
-                }).then(() => {
+                };
+            }, (error, committed, snapshot) => {
+                if (error) {
+                    alert('建立房間時發生錯誤：' + error.message);
+                } else if (!committed) {
+                    alert(`❌ 房號 [${currentRoomId}] 目前正有人在使用中！請更換一個數字。`);
+                } else {
+                    // 順利建立成功，切換畫面
                     enterRoomView();
                     sendSystemMessage(`🎉 房長 [${myName}] 建立了新房間！`);
-                });
+                }
             });
         }
 
@@ -597,6 +604,8 @@
 
                 enterRoomView();
                 sendSystemMessage(`👋 玩家 [${myName}] 悄悄加入了房間。`);
+            }, (error) => {
+                alert("讀取資料庫失敗，請確認網路或房號：" + error.message);
             });
         }
 
