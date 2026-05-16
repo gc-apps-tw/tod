@@ -65,7 +65,7 @@
         // 自動非同步抓取你在 GitHub 託管的最新題庫
         async function loadQuestions() {
             try {
-                const response = await fetch('https://gc-apps-tw.github.io/tod/ques.json');
+                const response = await fetch('https://raw.githubusercontent.com/gc-apps-tw/tod/refs/heads/main/ques');
                 if (!response.ok) throw new Error('雲端題庫回應失敗');
                 questions = await response.json();
                 console.log(`題庫加載完畢，總計：${questions.length} 題。`);
