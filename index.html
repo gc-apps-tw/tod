@@ -3,9 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🤫 真心話大冒險 - 獨立全功能版</title>
+    <title>🤫 真心話大冒險 - 跨手機即時同步版</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
     <style>
-        /* 全域重設與大圓角 RWD 風格 */
+        /* 全域大圓角與微醺極光 RWD 樣式 */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -15,7 +19,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft JhengHei", Roboto, sans-serif;
-            background: radial-gradient(circle at center, #1e1e24 0%, #0f0f12 100%);
+            background: radial-gradient(circle at 50% 0%, #2a1b3d 0%, #0f0f12 100%);
             color: #ffffff;
             display: flex;
             flex-direction: column;
@@ -25,258 +29,181 @@
             padding: 15px;
         }
 
-        /* 核心大圓角卡片 */
+        /* 頂級霓虹大圓角卡片 */
         .game-card {
-            background: rgba(30, 30, 40, 0.8);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(25, 20, 35, 0.85);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 71, 87, 0.15);
             width: 100%;
-            max-width: 500px;
-            padding: 30px 20px;
-            border-radius: 24px; /* 完美大圓角 */
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+            max-width: 480px;
+            padding: 35px 24px;
+            border-radius: 28px; /* 完美極致大圓角 */
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(255, 71, 87, 0.05);
             display: flex;
             flex-direction: column;
             transition: all 0.3s ease;
         }
 
         h1 {
-            font-size: 1.8rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #ff4757, #ff6b81);
+            font-size: 1.9rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ff4757, #ff6b81, #70a1ff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             text-align: center;
-            margin-bottom: 20px;
-            letter-spacing: 1px;
+            margin-bottom: 25px;
+            letter-spacing: 1.5px;
         }
 
-        /* View 檢視區控制 */
-        .view {
-            display: none;
-        }
-        .view.active {
-            display: block;
-        }
+        /* View 檢視區切換 */
+        .view { display: none; }
+        .view.active { display: block; }
 
-        /* ================= 【View 1: 房間主頁樣式】 ================= */
-        .room-form {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            text-align: left;
-            gap: 8px;
-        }
-
-        label {
-            font-size: 0.9rem;
-            color: #a4b0be;
-            font-weight: 600;
-        }
-
+        /* ================= 【View 1: 房間主頁優化】 ================= */
+        .room-form { display: flex; flex-direction: column; gap: 18px; }
+        .input-group { display: flex; flex-direction: column; text-align: left; gap: 8px; }
+        label { font-size: 0.9rem; color: #a4b0be; font-weight: 600; }
+        
         input {
             width: 100%;
-            padding: 14px 20px;
+            padding: 15px 20px;
             font-size: 1.1rem;
-            border-radius: 14px; /* 輸入框圓角 */
+            border-radius: 16px; /* 大圓角輸入框 */
             border: 1px solid rgba(255, 255, 255, 0.1);
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.4);
             color: #fff;
             outline: none;
-            transition: border-color 0.2s;
+            transition: all 0.2s ease;
         }
+        input:focus { border-color: #ff4757; box-shadow: 0 0 10px rgba(255, 71, 87, 0.2); }
 
-        input:focus {
-            border-color: #ff4757;
-        }
-
-        /* ================= 【View 2: 遊戲與聊天室核心畫面】 ================= */
+        /* ================= 【View 2: 核心遊戲區與聊天室】 ================= */
         .room-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 10px 16px;
+            margin-bottom: 18px;
+            background: rgba(255, 255, 255, 0.06);
+            padding: 10px 18px;
             border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .room-info {
-            font-size: 0.9rem;
-            color: #ff6b81;
-            font-weight: bold;
-        }
+        .room-info { font-size: 0.9rem; color: #ff6b81; font-weight: bold; }
 
-        /* 房間管理按鈕（退出/刪除） */
+        /* 房間控制按鈕 */
         .room-manage-btn {
             background: #ff4757;
             color: white;
             border: none;
-            padding: 6px 14px;
+            padding: 7px 16px;
             font-size: 0.8rem;
-            font-weight: bold;
+            font-weight: 800;
             border-radius: 50px;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.2s;
         }
-        .room-manage-btn.host {
-            background: #3742fa;
-        }
-        .room-manage-btn:hover {
-            opacity: 0.9;
-        }
+        .room-manage-btn.host { background: #3742fa; }
+        .room-manage-btn:active { transform: scale(0.92); }
 
+        /* 霓虹圓角題目框 */
         .question-box {
             font-size: 1.3rem;
             font-weight: 600;
             line-height: 1.6;
             color: #f1f2f6;
-            min-height: 130px;
+            min-height: 140px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin-bottom: 20px;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 18px; /* 題目框圓角 */
-            border: 1px solid rgba(255, 71, 87, 0.25);
-            box-shadow: inset 0 0 20px rgba(255, 71, 87, 0.05);
+            padding: 22px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 20px; /* 大圓角題目框 */
+            border: 1px solid rgba(255, 71, 87, 0.3);
+            box-shadow: inset 0 0 20px rgba(255, 71, 87, 0.08);
             word-break: break-all;
-            opacity: 1;
-            transition: opacity 0.15s ease-in-out;
         }
 
-        .question-box.fade {
-            opacity: 0;
-        }
-
-        /* 獨立全時間聊天室 */
+        /* 隨時全功能即時聊天室 */
         .chat-container {
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.35);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 18px; /* 聊天室大圓角 */
-            padding: 12px;
-            margin-top: 20px;
+            border-radius: 20px; /* 大圓角聊天區 */
+            padding: 14px;
+            margin-top: 22px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
         }
 
         .chat-messages {
-            height: 130px;
+            height: 140px;
             overflow-y: auto;
             text-align: left;
             font-size: 0.9rem;
             display: flex;
             flex-direction: column;
             gap: 6px;
-            padding-right: 5px;
         }
+        .chat-messages::-webkit-scrollbar { width: 4px; }
+        .chat-messages::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 10px; }
 
-        /* 滾動條美化 */
-        .chat-messages::-webkit-scrollbar {
-            width: 4px;
-        }
-        .chat-messages::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-        }
+        .msg-item { line-height: 1.4; word-break: break-all; }
+        .msg-time { color: #57606f; font-size: 0.75rem; margin-right: 6px; }
+        .msg-name { color: #ff6b81; font-weight: bold; margin-right: 4px; }
+        .msg-name.system { color: #eed202; }
+        .msg-name.host-tag { color: #1e90ff; }
 
-        .msg-item {
-            line-height: 1.4;
-            word-break: break-all;
-        }
-        .msg-time {
-            color: #747d8c;
-            font-size: 0.75rem;
-            margin-right: 5px;
-        }
-        .msg-name {
-            color: #ff6b81;
-            font-weight: bold;
-            margin-right: 4px;
-        }
-        .msg-name.system {
-            color: #eed202;
-        }
-
-        .chat-input-row {
-            display: flex;
-            gap: 8px;
-        }
-
+        .chat-input-row { display: flex; gap: 8px; }
         .chat-input {
             flex: 1;
-            padding: 10px 14px;
+            padding: 12px 16px;
             font-size: 0.95rem;
-            border-radius: 10px;
+            border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             background: rgba(0, 0, 0, 0.4);
             color: white;
             outline: none;
         }
-
         .chat-send-btn {
-            background: #2ed573;
+            background: linear-gradient(135deg, #2ed573, #26af56);
             color: white;
             border: none;
-            padding: 0 16px;
+            padding: 0 18px;
             font-size: 0.9rem;
             font-weight: bold;
-            border-radius: 10px;
+            border-radius: 12px;
             cursor: pointer;
         }
 
-        /* 通用按鈕樣式 */
+        /* 大圓角按鈕 */
         .main-btn {
             color: #ffffff;
             border: none;
-            padding: 14px 40px;
+            padding: 15px 40px;
             font-size: 1.15rem;
             font-weight: 700;
-            border-radius: 50px; /* 膠囊圓角 */
+            border-radius: 50px; /* 完美膠囊圓角 */
             cursor: pointer;
             width: 100%;
             max-width: 260px;
             margin: 0 auto;
             outline: none;
             display: block;
-            transition: transform 0.1s ease, box-shadow 0.2s ease;
+            transition: all 0.1s ease;
         }
+        .btn-primary { background: linear-gradient(135deg, #ff4757 0%, #e84118 100%); box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4); }
+        .btn-secondary { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); }
+        .main-btn:active { transform: scale(0.95); }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #ff4757 0%, #e84118 100%);
-            box-shadow: 0 6px 20px rgba(255, 71, 87, 0.35);
-        }
+        .status-bar { margin-top: 15px; text-align: center; font-size: 0.8rem; color: #747d8c; }
 
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-        }
-
-        .main-btn:active {
-            transform: scale(0.95);
-        }
-
-        .status-bar {
-            margin-top: 15px;
-            text-align: center;
-            font-size: 0.8rem;
-            color: #747d8c;
-        }
-
-        /* RWD 手機版斷點 */
         @media (max-width: 375px) {
-            .game-card { padding: 20px 15px; }
-            h1 { font-size: 1.4rem; }
+            .game-card { padding: 25px 16px; }
+            h1 { font-size: 1.5rem; }
             .question-box { font-size: 1.15rem; min-height: 110px; }
-            .chat-messages { height: 100px; }
         }
     </style>
 </head>
@@ -302,23 +229,21 @@
 
         <div id="gameView" class="view">
             <div class="room-header">
-                <div class="room-info" id="currentRoomDisplay">房號：---- | 角色：----</div>
+                <div class="room-info" id="currentRoomDisplay">房號：---- | 身份：----</div>
                 <button class="room-manage-btn" id="roomManageBtn" onclick="handleRoomExitOrDelete()">退出房間</button>
             </div>
             
             <div class="question-box" id="questionDisplay">
-                等待房長抽出震撼全場的第一道題目...
+                正在等待房長抽出跨手機同步的第一道驚悚題目...
             </div>
 
             <button class="main-btn btn-primary" id="drawBtn" onclick="drawQuestion()">抽出下一題</button>
             <div class="status-bar" id="counterDisplay">剩餘未爆彈：-- 題</div>
 
             <div class="chat-container">
-                <div class="chat-messages" id="chatMessages">
-                    <div class="msg-item"><span class="msg-name system">[系統]</span>歡迎來到隨時聊天室！大家可以隨時在此吐槽與對話。</div>
-                </div>
+                <div class="chat-messages" id="chatMessages"></div>
                 <div class="chat-input-row">
-                    <input type="text" class="chat-input" id="chatInput" placeholder="輸入訊息..." onkeydown="if(event.key==='Enter') sendChatMessage()">
+                    <input type="text" class="chat-input" id="chatInput" placeholder="任何時間都能隨時聊天吐槽..." onkeydown="if(event.key==='Enter') sendChatMessage()">
                     <button class="chat-send-btn" onclick="sendChatMessage()">發送</button>
                 </div>
             </div>
@@ -327,11 +252,11 @@
 
     <script>
         // ==========================================
-        // 🔒 100% 內嵌完整題庫，絕對不受外部加載與紅字影響
+        // 🔒 100% 內嵌完整題庫，不依賴任何外部 json 檔案
         // ==========================================
         window.gameQuestions = [
           "最討厭朋友說什麼話？這句話是誰說的？當時你表面上怎麼回應？",
-          "有沒有因為朋友做過很丟臉的事？是哪位朋友？當時現場有其他人看到嗎？",
+          "有沒有因為朋友做過轉丟臉的事？是哪位朋友？當時現場有其他人看到嗎？",
           "有沒有曾經故意放朋友鴿子？你是編了什麼藉口？事後有被對方拆穿嗎？",
           "有沒有故意不接朋友電話過？對象是誰？你當時其實在忙什麼？",
           "朋友做過最暖心的事是什麼？是哪一位朋友？這件事有改變你們的關係嗎？",
@@ -510,7 +435,7 @@
           "最反感別人的什麼行為？",
           "在場的人當中，你最受不了誰的哪一個生活小習慣？必須指名道姓，並講出你隱忍多久了！",
           "你曾經在背地裡偷偷討厭過在場的哪個人？原因是什麼？",
-          "如果現場一定要挑選一個人絕交、以後再也不聯絡，你会選誰？",
+          "如果現場一定要挑選一個人絕交、以後再也不聯絡，你會選誰？",
           "你上一段感情分手的真正導火線是什麼？",
           "如果交往後發現另一半是個極度可怕的控制狂，你的底線到哪裡才會提分手？",
           "曾經為了追求一個人做過最卑微、連自己現在回想起來都看不起自己的行為是什麼？",
@@ -540,7 +465,7 @@
           "在場的人裡面，你覺得誰最愛在大家或網路上裝可憐？",
           "你最長的一段無縫接軌的經驗是瞞了多久？",
           "有沒有哪次你明明知道好朋友正在丟臉地說謊，卻沒有拆穿，反而私下跟別的朋友嘲笑他？",
-          "如果一定要選現場一個人的手機相簿現場投放到大螢幕上播放5分鍾，你會選誰的？",
+          "如果一定要選現場一個人的手機相簿現場投放到大螢幕上播放5分鐘，你會選誰批？",
           "你曾經為了職場升遷或拿好處，刻意去巴結或討好你極度討厭的人嗎？",
           "如果另一半賺得比你多五十倍，但代價是你在家必須完全聽他的話，你接受嗎？",
           "你覺得現場哪個人的個人衛生習慣最差？",
@@ -550,7 +475,7 @@
           "你手機收過或者傳出去過尺度讓你最害羞的照片嗎？對象是誰？現在還存著嗎？",
           "你覺得現場有誰是外表看起來很純潔，但你的直覺告訴你他私底下社交圈玩很大？",
           "如果可以用自己身上最在乎的一樣東西，換取另一半一輩子絕對不劈腿，你願意嗎？",
-          "你曾在哪個公眾人物或明星身上投射過非常具體地戀愛幻想？",
+          "你曾在哪個公眾人物或明星身上投射過非常具體的戀愛幻想？",
           "如果你因為寂寞而做出過最越界、最對不起前任的事是什麼？",
           "你人生中收到最屈辱或最不舒服的感情拒絕方式是什麼？是誰拒絕你的？",
           "如果給你一千萬，代價是必須把在場某個人的其中一個天大醜事公諸於世，你會賣掉誰？",
@@ -562,22 +487,49 @@
           "在場的所有人中，你覺得誰談戀愛時的控制慾可能最強、最讓人窒息？"
         ];
 
-        // 核心運作變數
-        let localQuestions = [];
+        // ==========================================
+        // ⚙️ 自動填入您提供的 Firebase 設定
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDHlbNgsrh0ApVs0jNJWN0OYa-XwrvAABg",
+            authDomain: "gc-truth-or-dare.firebaseapp.com",
+            databaseURL: "https://gc-truth-or-dare-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "gc-truth-or-dare",
+            storageBucket: "gc-truth-or-dare.firebasestorage.app",
+            messagingSenderId: "285951986533",
+            appId: "1:285951986533:web:a341479d15d975882a6f8c",
+            measurementId: "G-ZHZXETWEQ1"
+        };
+        
+        // 初始化 Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
         let myName = "";
         let currentRoomId = "";
         let isHost = false;
+        let roomRef = null;
 
-        // 【功能 1：房間控制邏輯】
+        // 【功能一：創建與嚴格驗證加入房間】
         function handleCreateRoom() {
             myName = document.getElementById('playerName').value.trim();
             if (!myName) { alert('請輸入您的暱稱！'); return; }
 
             currentRoomId = Math.floor(1000 + Math.random() * 9000).toString();
             isHost = true;
+            roomRef = db.ref('rooms/' + currentRoomId);
 
-            switchToGameView();
-            addSystemMessage(`建立了新房間 [${currentRoomId}]。`);
+            // 房長初始化雲端房間資料與完整題池
+            roomRef.set({
+                hostName: myName,
+                currentQuestion: "等待房長抽出震撼全場的第一道題目...",
+                pool: window.gameQuestions, // 完整題池寫入雲端
+                totalQuestions: window.gameQuestions.length,
+                exists: true
+            }).then(() => {
+                enterRoomView();
+                sendSystemMessage(`🎉 房長 [${myName}] 建立了新房間！`);
+            });
         }
 
         function handleJoinRoom() {
@@ -585,18 +537,27 @@
             const room = document.getElementById('roomNumber').value.trim();
             if (!myName || !room) { alert('請填齊暱稱與 4 位數房號！'); return; }
 
-            currentRoomId = room;
-            isHost = false;
+            // 🚫 嚴格驗證：檢查房間是否存在
+            db.ref('rooms/' + room).once('value', (snapshot) => {
+                if (!snapshot.exists() || !snapshot.val().exists) {
+                    alert('❌ 錯誤：找不到該房間！房號可能不正確，或房間已被房長關閉。');
+                    return;
+                }
 
-            switchToGameView();
-            addSystemMessage(`加入了房間 [${currentRoomId}]。`);
+                currentRoomId = room;
+                isHost = false;
+                roomRef = db.ref('rooms/' + currentRoomId);
+
+                enterRoomView();
+                sendSystemMessage(`👋 玩家 [${myName}] 悄悄加入了房間。`);
+            });
         }
 
-        function switchToGameView() {
+        // 進入遊戲畫面並同步掛載 Firebase 聽眾
+        function enterRoomView() {
             document.getElementById('roomView').classList.remove('active');
             document.getElementById('gameView').classList.add('active');
-            
-            // 根據身份渲染管理按鈕與介面
+
             const manageBtn = document.getElementById('roomManageBtn');
             const drawBtn = document.getElementById('drawBtn');
             const roomDisplay = document.getElementById('currentRoomDisplay');
@@ -604,9 +565,10 @@
             if (isHost) {
                 roomDisplay.innerText = `房號：${currentRoomId} | 身份：房長`;
                 manageBtn.innerText = "刪除房間";
-                   manageBtn.classList.add('host');
+                manageBtn.classList.add('host');
                 drawBtn.disabled = false;
                 drawBtn.style.opacity = "1";
+                drawBtn.style.cursor = "pointer";
                 drawBtn.innerText = "抽出下一題";
             } else {
                 roomDisplay.innerText = `房號：${currentRoomId} | 身份：組員`;
@@ -615,97 +577,152 @@
                 drawBtn.disabled = true;
                 drawBtn.style.opacity = "0.4";
                 drawBtn.style.cursor = "not-allowed";
-                drawBtn.innerText = "等待房長抽題中...";
+                drawBtn.innerText = "等待房長抽題...";
             }
 
-            // 初始化本地抽題池
-            localQuestions = [...window.gameQuestions];
-            updateCounter();
+            document.getElementById('chatMessages').innerHTML = "";
+
+            // 🔊 同步 1：跨手機即時題目同步
+            roomRef.child('currentQuestion').on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    document.getElementById('questionDisplay').innerText = snapshot.val();
+                }
+            });
+
+            // 🔊 同步 2：跨手機即時剩餘題數計數器
+            roomRef.child('totalQuestions').on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    document.getElementById('counterDisplay').innerText = `剩餘未爆彈：${snapshot.val()} / ${window.gameQuestions.length} 題`;
+                }
+            });
+
+            // 🔊 同步 3：任何時間、任何人都同步的隨時聊天室
+            roomRef.child('messages').off();
+            roomRef.child('messages').limitToLast(50).on('child_added', (snapshot) => {
+                const data = snapshot.val();
+                renderMessage(data.time, data.name, data.text, data.isSystem, data.isHost);
+            });
+
+            // 🔊 同步 4：監控房長是否刪除房間（防踢出）
+            roomRef.child('exists').on('value', (snapshot) => {
+                if (snapshot.exists() && snapshot.val() === false) {
+                    alert('🚨 房長已摧毀此房間，所有人強制解散！');
+                    exitRoomAndReset();
+                }
+            });
         }
 
-        // 退出或刪除房間
+        // 【功能二：真正的刪除/退出邏輯】
         function handleRoomExitOrDelete() {
             if (isHost) {
-                if (!confirm("您是房長，確定要刪除房間並踢出所有人嗎？")) return;
-                alert("房間已刪除！");
+                if (!confirm("⚠️ 確定要刪除房間嗎？這會把所有人強制踢出去！")) return;
+                sendSystemMessage(`🚨 房長解散了房間。`);
+                roomRef.update({ exists: false }).then(() => {
+                    setTimeout(() => { roomRef.remove(); }, 800);
+                    exitRoomAndReset();
+                });
             } else {
-                if (!confirm("確定要退出此房間嗎？")) return;
-                alert("已退出房間！");
+                if (!confirm("確定要退出目前房間嗎？")) return;
+                sendSystemMessage(`🏃 玩家 [${myName}] 退出了房間。`);
+                exitRoomAndReset();
             }
-            // 重置回主頁
+        }
+
+        function exitRoomAndReset() {
+            if (roomRef) {
+                roomRef.child('currentQuestion').off();
+                roomRef.child('totalQuestions').off();
+                roomRef.child('messages').off();
+                roomRef.child('exists').off();
+            }
             document.getElementById('gameView').classList.remove('active');
             document.getElementById('roomView').classList.add('active');
-            document.getElementById('chatMessages').innerHTML = '<div class="msg-item"><span class="msg-name system">[系統]</span>歡迎來到隨時聊天室！大家可以隨時在此吐槽與對話。</div>';
-            document.getElementById('questionDisplay').innerText = "等待房長抽出震撼全場的第一道題目...";
         }
 
-        // 【功能 2：抽題核心邏輯】
-        function updateCounter() {
-            document.getElementById('counterDisplay').innerText = `剩餘未爆彈：${localQuestions.length} / ${window.gameQuestions.length} 題`;
-        }
-
+        // 【功能三：真·跨手機即時隨機抽題（從 Firebase 雲端題池抽取）】
         function drawQuestion() {
-            const display = document.getElementById('questionDisplay');
+            if (!isHost) return;
 
-            if (localQuestions.length === 0) {
-                localQuestions = [...window.gameQuestions];
-                display.innerText = "🎉 全數拷問完畢！題目已全數重新洗牌！";
-                updateCounter();
-                addSystemMessage("房長重設了題庫，所有題目已重新洗牌！");
-                return;
-            }
+            roomRef.child('pool').once('value', (snapshot) => {
+                let pool = [];
+                if (snapshot.exists()) {
+                    pool = snapshot.val();
+                }
 
-            display.classList.add('fade');
+                // 如果題池抽乾了，重新洗牌
+                if (!pool || pool.length === 0) {
+                    pool = [...window.gameQuestions];
+                    sendSystemMessage("🔄 所有題目皆已抽過，題庫已自動重新洗牌！");
+                }
 
-            setTimeout(() => {
-                const randomIndex = Math.floor(Math.random() * localQuestions.length);
-                const selectedQuestion = localQuestions[randomIndex];
+                const randomIndex = Math.floor(Math.random() * pool.length);
+                const selectedQuestion = pool[randomIndex];
 
-                localQuestions.splice(randomIndex, 1);
-                display.innerText = selectedQuestion;
-                updateCounter();
-                display.classList.remove('fade');
+                // 從題池中移除此題
+                pool.splice(randomIndex, 1);
 
-                // 自動將抽到的題目廣播至隨時聊天室
-                addSystemMessage(`房長抽出了新題目：${selectedQuestion}`);
-            }, 150);
+                // 同步回雲端，讓所有人即時更新題目、題數計數器與剩餘題池
+                roomRef.update({
+                    currentQuestion: selectedQuestion,
+                    pool: pool,
+                    totalQuestions: pool.length
+                });
+
+                sendSystemMessage(`🎯 房長抽出了新題目！`);
+            });
         }
 
-        // 【功能 3：全時間即時聊天室邏輯】
+        // 【功能四：任何時間都能傳送訊息的即時聊天室】
         function sendChatMessage() {
             const input = document.getElementById('chatInput');
             const text = input.value.trim();
-            if (!text) return;
+            if (!text || !roomRef) return;
 
             const now = new Date();
             const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
 
+            roomRef.child('messages').push({
+                time: timeStr,
+                name: myName,
+                text: text,
+                isSystem: false,
+                isHost: isHost
+            });
+
+            input.value = "";
+        }
+
+        function sendSystemMessage(text) {
+            if (!roomRef) return;
+            const now = new Date();
+            const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+            roomRef.child('messages').push({
+                time: timeStr,
+                name: "[系統]",
+                text: text,
+                isSystem: true,
+                isHost: false
+            });
+        }
+
+        // 將訊息渲染到網頁畫面的排版中
+        function renderMessage(time, name, text, isSystem, isHostTag) {
+            const box = document.getElementById('chatMessages');
+            let nameClass = "msg-name";
+            if (isSystem) nameClass += " system";
+            if (isHostTag) nameClass += " host-tag";
+
             const msgHtml = `
                 <div class="msg-item">
-                    <span class="msg-time">${timeStr}</span><span class="msg-name">${escapeHtml(myName)}:</span>${escapeHtml(text)}
+                    <span class="msg-time">${time}</span>
+                    <span class="${nameClass}">${escapeHtml(name)}${isSystem?'':':'}</span>
+                    <span class="msg-text">${escapeHtml(text)}</span>
                 </div>
             `;
-            
-            const box = document.getElementById('chatMessages');
             box.insertAdjacentHTML('beforeend', msgHtml);
-            input.value = "";
             box.scrollTop = box.scrollHeight; // 自動捲動到最底部
         }
 
-        function addSystemMessage(text) {
-            const now = new Date();
-            const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-            const msgHtml = `
-                <div class="msg-item">
-                    <span class="msg-time">${timeStr}</span><span class="msg-name system">[系統]</span>${text}
-                </div>
-            `;
-            const box = document.getElementById('chatMessages');
-            box.insertAdjacentHTML('beforeend', msgHtml);
-            box.scrollTop = box.scrollHeight;
-        }
-
-        // 防止 HTML 注入的安全機制
         function escapeHtml(string) {
             return String(string).replace(/[&<>"']/g, function (s) {
                 return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[s];
