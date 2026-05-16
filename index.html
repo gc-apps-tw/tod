@@ -109,11 +109,11 @@
 
         /* 霓虹圓角題目框 */
         .question-box {
-            font-size: 1.3rem;
+            font-size: 1.25rem;
             font-weight: 600;
             line-height: 1.6;
             color: #f1f2f6;
-            min-height: 140px;
+            min-height: 120px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -124,6 +124,15 @@
             border: 1px solid rgba(255, 71, 87, 0.3);
             box-shadow: inset 0 0 20px rgba(255, 71, 87, 0.08);
             word-break: break-all;
+        }
+
+        /* 按鈕群組區 */
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            align-items: center;
         }
 
         /* 隨時全功能即時聊天室 */
@@ -139,22 +148,36 @@
         }
 
         .chat-messages {
-            height: 140px;
+            height: 180px;
             overflow-y: auto;
             text-align: left;
             font-size: 0.9rem;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
         }
         .chat-messages::-webkit-scrollbar { width: 4px; }
         .chat-messages::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 10px; }
 
-        .msg-item { line-height: 1.4; word-break: break-all; }
-        .msg-time { color: #57606f; font-size: 0.75rem; margin-right: 6px; }
+        /* 聊天排版優化：拿掉時間，區分一般對話與真心話格式 */
+        .msg-item { line-height: 1.5; word-break: break-all; }
         .msg-name { color: #ff6b81; font-weight: bold; margin-right: 4px; }
         .msg-name.system { color: #eed202; }
         .msg-name.host-tag { color: #1e90ff; }
+        .msg-text { color: #ffffff; }
+
+        /* 真心話特別回報區塊樣式 */
+        .truth-report-block {
+            background: rgba(255, 71, 87, 0.07);
+            border-left: 4px solid #ff4757;
+            padding: 10px 14px;
+            margin: 6px 0;
+            border-radius: 0 12px 12px 0;
+            color: #ffcbd1;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            white-space: pre-wrap; /* 保持換行與分隔線 */
+        }
 
         .chat-input-row { display: flex; gap: 8px; }
         .chat-input {
@@ -168,22 +191,24 @@
             outline: none;
         }
         .chat-send-btn {
-            background: linear-gradient(135deg, #2ed573, #26af56);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             color: white;
-            border: none;
             padding: 0 18px;
             font-size: 0.9rem;
             font-weight: bold;
             border-radius: 12px;
             cursor: pointer;
+            transition: background 0.2s;
         }
+        .chat-send-btn:active { background: rgba(255, 255, 255, 0.2); }
 
         /* 大圓角按鈕 */
         .main-btn {
             color: #ffffff;
             border: none;
-            padding: 15px 40px;
-            font-size: 1.15rem;
+            padding: 14px 40px;
+            font-size: 1.1rem;
             font-weight: 700;
             border-radius: 50px; /* 完美膠囊圓角 */
             cursor: pointer;
@@ -193,17 +218,19 @@
             outline: none;
             display: block;
             transition: all 0.1s ease;
+            text-align: center;
         }
         .btn-primary { background: linear-gradient(135deg, #ff4757 0%, #e84118 100%); box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4); }
-        .btn-secondary { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); }
+        .btn-secondary { background: linear-gradient(135deg, #2ed573 0%, #26af56 100%); box-shadow: 0 6px 20px rgba(46, 213, 115, 0.3); }
+        .btn-room { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); }
         .main-btn:active { transform: scale(0.95); }
 
-        .status-bar { margin-top: 15px; text-align: center; font-size: 0.8rem; color: #747d8c; }
+        .status-bar { text-align: center; font-size: 0.8rem; color: #747d8c; margin-top: 4px; }
 
         @media (max-width: 375px) {
             .game-card { padding: 25px 16px; }
             h1 { font-size: 1.5rem; }
-            .question-box { font-size: 1.15rem; min-height: 110px; }
+            .question-box { font-size: 1.1rem; min-height: 100px; }
         }
     </style>
 </head>
@@ -223,7 +250,7 @@
                     <input type="text" id="roomNumber" placeholder="請輸入4位數房號...">
                 </div>
                 <button class="main-btn btn-primary" style="margin-top: 8px;" onclick="handleCreateRoom()">建立新房間</button>
-                <button class="main-btn btn-secondary" onclick="handleJoinRoom()">加入已有房間</button>
+                <button class="main-btn btn-room" onclick="handleJoinRoom()">加入已有房間</button>
             </div>
         </div>
 
@@ -237,14 +264,18 @@
                 正在等待房長抽出跨手機同步的第一道驚悚題目...
             </div>
 
-            <button class="main-btn btn-primary" id="drawBtn" onclick="drawQuestion()">抽出下一題</button>
-            <div class="status-bar" id="counterDisplay">剩餘未爆彈：-- 題</div>
+            <div class="btn-group">
+                <button class="main-btn btn-primary" id="drawBtn" onclick="drawQuestion()">抽出下一題</button>
+                <div class="status-bar" id="counterDisplay">剩餘未爆彈：-- 題</div>
+                
+                <button class="main-btn btn-secondary" onclick="submitTruthAnswer()">回答這道題</button>
+            </div>
 
             <div class="chat-container">
                 <div class="chat-messages" id="chatMessages"></div>
                 <div class="chat-input-row">
-                    <input type="text" class="chat-input" id="chatInput" placeholder="任何時間都能隨時聊天吐槽..." onkeydown="if(event.key==='Enter') sendChatMessage()">
-                    <button class="chat-send-btn" onclick="sendChatMessage()">發送</button>
+                    <input type="text" class="chat-input" id="chatInput" placeholder="輸入你想吐槽聊天的內容..." onkeydown="if(event.key==='Enter') sendChatMessage()">
+                    <button class="chat-send-btn" onclick="sendChatMessage()">聊天</button>
                 </div>
             </div>
         </div>
@@ -252,11 +283,11 @@
 
     <script>
         // ==========================================
-        // 🔒 100% 內嵌完整題庫，不依賴任何外部 json 檔案
+        // 🔒 100% 內嵌完整題庫
         // ==========================================
         window.gameQuestions = [
           "最討厭朋友說什麼話？這句話是誰說的？當時你表面上怎麼回應？",
-          "有沒有因為朋友做過轉丟臉的事？是哪位朋友？當時現場有其他人看到嗎？",
+          "有沒有因為朋友做過最丟臉的事？是哪位朋友？當時現場有其他人看到嗎？",
           "有沒有曾經故意放朋友鴿子？你是編了什麼藉口？事後有被對方拆穿嗎？",
           "有沒有故意不接朋友電話過？對象是誰？你當時其實在忙什麼？",
           "朋友做過最暖心的事是什麼？是哪一位朋友？這件事有改變你們的關係嗎？",
@@ -354,7 +385,7 @@
           "有沒有哪個朋友讓你覺得他根本是你失散多年的靈魂伴侶？",
           "有沒有曾經為了哪個朋友的生日超用心準備過？對方當時有哭嗎？",
           "最常跟哪個朋友在外面亂花錢互相慫恿？",
-          "有沒有哪個朋友是你出去一定要帶他的那種？",
+          "有沒有哪個朋友世紀出去一定要帶他的那種？",
           "有沒有哪個朋友的存在讓你覺得很有安全感？你最害怕哪一天突然失去他？",
           "哪個朋友的眼光最準，推薦什麼都沒讓你失望？",
           "哪個朋友講話最不過腦子，但你就是喜歡他這樣？",
@@ -465,7 +496,7 @@
           "在場的人裡面，你覺得誰最愛在大家或網路上裝可憐？",
           "你最長的一段無縫接軌的經驗是瞞了多久？",
           "有沒有哪次你明明知道好朋友正在丟臉地說謊，卻沒有拆穿，反而私下跟別的朋友嘲笑他？",
-          "如果一定要選現場一個人的手機相簿現場投放到大螢幕上播放5分鐘，你會選誰批？",
+          "如果一定要選現場一個人的手機相簿現場投放到大螢幕上播放5分鐘，你會選誰的？",
           "你曾經為了職場升遷或拿好處，刻意去巴結或討好你極度討厭的人嗎？",
           "如果另一半賺得比你多五十倍，但代價是你在家必須完全聽他的話，你接受嗎？",
           "你覺得現場哪個人的個人衛生習慣最差？",
@@ -488,7 +519,7 @@
         ];
 
         // ==========================================
-        // ⚙️ 自動填入您提供的 Firebase 設定
+        // ⚙️ Firebase Config 設定
         // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyDHlbNgsrh0ApVs0jNJWN0OYa-XwrvAABg",
@@ -509,8 +540,9 @@
         let currentRoomId = "";
         let isHost = false;
         let roomRef = null;
+        let localCurrentQuestion = ""; // 用來快取目前的題目內容做防呆
 
-        // 【功能一：創建與嚴格驗證加入房間】
+        // 【功能：創建與驗證加入房間】
         function handleCreateRoom() {
             myName = document.getElementById('playerName').value.trim();
             if (!myName) { alert('請輸入您的暱稱！'); return; }
@@ -519,11 +551,10 @@
             isHost = true;
             roomRef = db.ref('rooms/' + currentRoomId);
 
-            // 房長初始化雲端房間資料與完整題池
             roomRef.set({
                 hostName: myName,
                 currentQuestion: "等待房長抽出震撼全場的第一道題目...",
-                pool: window.gameQuestions, // 完整題池寫入雲端
+                pool: window.gameQuestions,
                 totalQuestions: window.gameQuestions.length,
                 exists: true
             }).then(() => {
@@ -537,7 +568,6 @@
             const room = document.getElementById('roomNumber').value.trim();
             if (!myName || !room) { alert('請填齊暱稱與 4 位數房號！'); return; }
 
-            // 🚫 嚴格驗證：檢查房間是否存在
             db.ref('rooms/' + room).once('value', (snapshot) => {
                 if (!snapshot.exists() || !snapshot.val().exists) {
                     alert('❌ 錯誤：找不到該房間！房號可能不正確，或房間已被房長關閉。');
@@ -553,7 +583,6 @@
             });
         }
 
-        // 進入遊戲畫面並同步掛載 Firebase 聽眾
         function enterRoomView() {
             document.getElementById('roomView').classList.remove('active');
             document.getElementById('gameView').classList.add('active');
@@ -585,7 +614,8 @@
             // 🔊 同步 1：跨手機即時題目同步
             roomRef.child('currentQuestion').on('value', (snapshot) => {
                 if (snapshot.exists()) {
-                    document.getElementById('questionDisplay').innerText = snapshot.val();
+                    localCurrentQuestion = snapshot.val();
+                    document.getElementById('questionDisplay').innerText = localCurrentQuestion;
                 }
             });
 
@@ -596,23 +626,23 @@
                 }
             });
 
-            // 🔊 同步 3：任何時間、任何人都同步的隨時聊天室
+            // 🔊 同步 3：即時聊天室與真心話發表同步（無時間戳記）
             roomRef.child('messages').off();
             roomRef.child('messages').limitToLast(50).on('child_added', (snapshot) => {
                 const data = snapshot.val();
-                renderMessage(data.time, data.name, data.text, data.isSystem, data.isHost);
+                renderMessage(data.name, data.text, data.isSystem, data.isHost, data.isTruthReport);
             });
 
-            // 🔊 同步 4：監控房長是否刪除房間（防踢出）
+            // 🔊 同步 4：監控房長是否刪除房間
             roomRef.child('exists').on('value', (snapshot) => {
                 if (snapshot.exists() && snapshot.val() === false) {
-                    alert('🚨 房長已摧毀此房間，所有人強制解散！');
+                    alert('🚨 房長已關閉此房間，所有人強制解散！');
                     exitRoomAndReset();
                 }
             });
         }
 
-        // 【功能二：真正的刪除/退出邏輯】
+        // 【功能：刪除/退出邏輯】
         function handleRoomExitOrDelete() {
             if (isHost) {
                 if (!confirm("⚠️ 確定要刪除房間嗎？這會把所有人強制踢出去！")) return;
@@ -639,7 +669,7 @@
             document.getElementById('roomView').classList.add('active');
         }
 
-        // 【功能三：真·跨手機即時隨機抽題（從 Firebase 雲端題池抽取）】
+        // 【功能：跨手機即時抽題】
         function drawQuestion() {
             if (!isHost) return;
 
@@ -649,7 +679,6 @@
                     pool = snapshot.val();
                 }
 
-                // 如果題池抽乾了，重新洗牌
                 if (!pool || pool.length === 0) {
                     pool = [...window.gameQuestions];
                     sendSystemMessage("🔄 所有題目皆已抽過，題庫已自動重新洗牌！");
@@ -657,11 +686,8 @@
 
                 const randomIndex = Math.floor(Math.random() * pool.length);
                 const selectedQuestion = pool[randomIndex];
-
-                // 從題池中移除此題
                 pool.splice(randomIndex, 1);
 
-                // 同步回雲端，讓所有人即時更新題目、題數計數器與剩餘題池
                 roomRef.update({
                     currentQuestion: selectedQuestion,
                     pool: pool,
@@ -672,54 +698,88 @@
             });
         }
 
-        // 【功能四：任何時間都能傳送訊息的即時聊天室】
+        // 【功能 1：日常純聊天訊息發送（不帶任何格式）】
         function sendChatMessage() {
             const input = document.getElementById('chatInput');
             const text = input.value.trim();
             if (!text || !roomRef) return;
 
-            const now = new Date();
-            const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-
             roomRef.child('messages').push({
-                time: timeStr,
                 name: myName,
                 text: text,
                 isSystem: false,
-                isHost: isHost
+                isHost: isHost,
+                isTruthReport: false // 標記為普通聊天
             });
 
             input.value = "";
+            input.focus();
+        }
+
+        // 【功能 2：點擊回答按鈕發表正式真心話（帶分隔線特別格式）】
+        function submitTruthAnswer() {
+            // 防呆：確認是否已抽題
+            if (!localCurrentQuestion || localCurrentQuestion.includes("等待房長抽出")) {
+                alert("❌ 請先等待房長抽出題目後再回答！");
+                return;
+            }
+
+            const answer = prompt(`📝 請輸入你對本題的真心話回答：\n\n【題目】：${localCurrentQuestion}`);
+            if (answer === null) return; // 點選取消
+            if (answer.trim() === "") {
+                alert("回答不能為空喔！");
+                return;
+            }
+
+            // 組合專屬分隔線真心話格式
+            const formattedReport = `----------------------------------------\n問題：${localCurrentQuestion}\n\n${myName}的回答：${answer.trim()}\n----------------------------------------`;
+
+            // 推送到 Firebase，讓它同步渲染到聊天區
+            roomRef.child('messages').push({
+                name: myName,
+                text: formattedReport,
+                isSystem: false,
+                isHost: isHost,
+                isTruthReport: true // 標記為正式真心話回答
+            });
         }
 
         function sendSystemMessage(text) {
             if (!roomRef) return;
-            const now = new Date();
-            const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
             roomRef.child('messages').push({
-                time: timeStr,
                 name: "[系統]",
                 text: text,
                 isSystem: true,
-                isHost: false
+                isHost: false,
+                isTruthReport: false
             });
         }
 
-        // 將訊息渲染到網頁畫面的排版中
-        function renderMessage(time, name, text, isSystem, isHostTag) {
+        // 渲染到網頁畫面的排版（已移除了時間戳記）
+        function renderMessage(name, text, isSystem, isHostTag, isTruthReport) {
             const box = document.getElementById('chatMessages');
-            let nameClass = "msg-name";
-            if (isSystem) nameClass += " system";
-            if (isHostTag) nameClass += " host-tag";
+            
+            if (isTruthReport) {
+                // 如果是真心話回答，使用專屬特殊分隔大圓角區塊
+                const msgHtml = `
+                    <div class="truth-report-block">${escapeHtml(text)}</div>
+                `;
+                box.insertAdjacentHTML('beforeend', msgHtml);
+            } else {
+                // 如果是一般純聊天
+                let nameClass = "msg-name";
+                if (isSystem) nameClass += " system";
+                if (isHostTag) nameClass += " host-tag";
 
-            const msgHtml = `
-                <div class="msg-item">
-                    <span class="msg-time">${time}</span>
-                    <span class="${nameClass}">${escapeHtml(name)}${isSystem?'':':'}</span>
-                    <span class="msg-text">${escapeHtml(text)}</span>
-                </div>
-            `;
-            box.insertAdjacentHTML('beforeend', msgHtml);
+                const msgHtml = `
+                    <div class="msg-item">
+                        <span class="${nameClass}">${escapeHtml(name)}${isSystem?'':':'}</span>
+                        <span class="msg-text">${escapeHtml(text)}</span>
+                    </div>
+                `;
+                box.insertAdjacentHTML('beforeend', msgHtml);
+            }
+            
             box.scrollTop = box.scrollHeight; // 自動捲動到最底部
         }
 
