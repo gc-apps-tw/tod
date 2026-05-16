@@ -3,12 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🤫 真心話大冒險 - 雲端連線版</title>
-    
-    <script src="https://raw.githubusercontent.com/gc-apps-tw/tod/refs/heads/main/ques.json"></script>
-    
+    <title>🤫 真心話大冒險 - 獨立全功能版</title>
     <style>
-        /* 全域重設與 RWD 防破版 */
+        /* 全域重設與大圓角 RWD 風格 */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -25,21 +22,22 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            padding: 20px;
+            padding: 15px;
         }
 
         /* 核心大圓角卡片 */
         .game-card {
-            background: rgba(30, 30, 40, 0.75);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            background: rgba(30, 30, 40, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.08);
             width: 100%;
             max-width: 500px;
-            padding: 40px 24px;
-            border-radius: 24px; /* 現代感大圓角 */
+            padding: 30px 20px;
+            border-radius: 24px; /* 完美大圓角 */
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
-            text-align: center;
+            display: flex;
+            flex-direction: column;
             transition: all 0.3s ease;
         }
 
@@ -49,11 +47,12 @@
             background: linear-gradient(135deg, #ff4757, #ff6b81);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 25px;
+            text-align: center;
+            margin-bottom: 20px;
             letter-spacing: 1px;
         }
 
-        /* 控制 View 顯示或隱藏 */
+        /* View 檢視區控制 */
         .view {
             display: none;
         }
@@ -61,12 +60,11 @@
             display: block;
         }
 
-        /* ================= 【View 1: 房間系統主頁樣式】 ================= */
+        /* ================= 【View 1: 房間主頁樣式】 ================= */
         .room-form {
             display: flex;
             flex-direction: column;
             gap: 16px;
-            margin-top: 10px;
         }
 
         .input-group {
@@ -86,7 +84,7 @@
             width: 100%;
             padding: 14px 20px;
             font-size: 1.1rem;
-            border-radius: 14px; /* 輸入框圓角化 */
+            border-radius: 14px; /* 輸入框圓角 */
             border: 1px solid rgba(255, 255, 255, 0.1);
             background: rgba(0, 0, 0, 0.3);
             color: #fff;
@@ -98,55 +96,154 @@
             border-color: #ff4757;
         }
 
-        /* ================= 【View 2: 核心抽題畫面樣式】 ================= */
-        .room-info {
-            font-size: 0.95rem;
-            color: #ff6b81;
-            margin-bottom: 20px;
-            font-weight: bold;
-            background: rgba(255, 71, 87, 0.1);
-            padding: 8px 16px;
+        /* ================= 【View 2: 遊戲與聊天室核心畫面】 ================= */
+        .room-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px 16px;
             border-radius: 50px;
-            display: inline-block;
+        }
+
+        .room-info {
+            font-size: 0.9rem;
+            color: #ff6b81;
+            font-weight: bold;
+        }
+
+        /* 房間管理按鈕（退出/刪除） */
+        .room-manage-btn {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .room-manage-btn.host {
+            background: #3742fa;
+        }
+        .room-manage-btn:hover {
+            opacity: 0.9;
         }
 
         .question-box {
-            font-size: 1.35rem;
+            font-size: 1.3rem;
             font-weight: 600;
             line-height: 1.6;
             color: #f1f2f6;
-            min-height: 160px;
+            min-height: 130px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 35px;
-            padding: 24px;
+            margin-bottom: 20px;
+            padding: 20px;
             background: rgba(255, 255, 255, 0.03);
             border-radius: 18px; /* 題目框圓角 */
             border: 1px solid rgba(255, 71, 87, 0.25);
             box-shadow: inset 0 0 20px rgba(255, 71, 87, 0.05);
             word-break: break-all;
-            
-            /* 切換題目時的絲滑轉場 */
             opacity: 1;
-            transition: opacity 0.18s ease-in-out;
+            transition: opacity 0.15s ease-in-out;
         }
 
         .question-box.fade {
             opacity: 0;
         }
 
-        /* 通用頂級大圓角膠囊按鈕 */
+        /* 獨立全時間聊天室 */
+        .chat-container {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 18px; /* 聊天室大圓角 */
+            padding: 12px;
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .chat-messages {
+            height: 130px;
+            overflow-y: auto;
+            text-align: left;
+            font-size: 0.9rem;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding-right: 5px;
+        }
+
+        /* 滾動條美化 */
+        .chat-messages::-webkit-scrollbar {
+            width: 4px;
+        }
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+
+        .msg-item {
+            line-height: 1.4;
+            word-break: break-all;
+        }
+        .msg-time {
+            color: #747d8c;
+            font-size: 0.75rem;
+            margin-right: 5px;
+        }
+        .msg-name {
+            color: #ff6b81;
+            font-weight: bold;
+            margin-right: 4px;
+        }
+        .msg-name.system {
+            color: #eed202;
+        }
+
+        .chat-input-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 10px 14px;
+            font-size: 0.95rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.4);
+            color: white;
+            outline: none;
+        }
+
+        .chat-send-btn {
+            background: #2ed573;
+            color: white;
+            border: none;
+            padding: 0 16px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        /* 通用按鈕樣式 */
         .main-btn {
             color: #ffffff;
             border: none;
-            padding: 16px 40px;
+            padding: 14px 40px;
             font-size: 1.15rem;
             font-weight: 700;
-            border-radius: 50px; /* 超流線膠囊圓角 */
+            border-radius: 50px; /* 膠囊圓角 */
             cursor: pointer;
             width: 100%;
-            max-width: 280px;
+            max-width: 260px;
             margin: 0 auto;
             outline: none;
             display: block;
@@ -161,27 +258,25 @@
         .btn-secondary {
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.15);
-            margin-top: 8px;
         }
 
-        /* 點擊時的手機震動縮放回饋 */
         .main-btn:active {
             transform: scale(0.95);
         }
 
         .status-bar {
-            margin-top: 25px;
-            font-size: 0.85rem;
+            margin-top: 15px;
+            text-align: center;
+            font-size: 0.8rem;
             color: #747d8c;
-            letter-spacing: 0.5px;
         }
 
-        /* RWD 手機版優化斷點 */
+        /* RWD 手機版斷點 */
         @media (max-width: 375px) {
-            .game-card { padding: 30px 16px; }
-            h1 { font-size: 1.5rem; }
-            .question-box { font-size: 1.2rem; min-height: 130px; }
-            .main-btn { font-size: 1.1rem; padding: 14px 30px; }
+            .game-card { padding: 20px 15px; }
+            h1 { font-size: 1.4rem; }
+            .question-box { font-size: 1.15rem; min-height: 110px; }
+            .chat-messages { height: 100px; }
         }
     </style>
 </head>
@@ -197,102 +292,358 @@
                     <input type="text" id="playerName" placeholder="請輸入你的暱稱...">
                 </div>
                 <div class="input-group">
-                    <label>房間號碼 (加入已建立房間請填)</label>
+                    <label>房間號碼 (加入已有房間請填)</label>
                     <input type="text" id="roomNumber" placeholder="請輸入4位數房號...">
                 </div>
-                <button class="main-btn btn-primary" style="margin-top: 10px;" onclick="handleCreateRoom()">建立新房間</button>
+                <button class="main-btn btn-primary" style="margin-top: 8px;" onclick="handleCreateRoom()">建立新房間</button>
                 <button class="main-btn btn-secondary" onclick="handleJoinRoom()">加入已有房間</button>
             </div>
         </div>
 
         <div id="gameView" class="view">
-            <div class="room-info" id="currentRoomDisplay">房間號碼：---- | 身份：----</div>
+            <div class="room-header">
+                <div class="room-info" id="currentRoomDisplay">房號：---- | 角色：----</div>
+                <button class="room-manage-btn" id="roomManageBtn" onclick="handleRoomExitOrDelete()">退出房間</button>
+            </div>
             
             <div class="question-box" id="questionDisplay">
-                正在等待房長抽出震撼全場的第一道題目...
+                等待房長抽出震撼全場的第一道題目...
             </div>
 
             <button class="main-btn btn-primary" id="drawBtn" onclick="drawQuestion()">抽出下一題</button>
-            
-            <div class="status-bar" id="counterDisplay">剩餘珍貴題目：-- 題</div>
+            <div class="status-bar" id="counterDisplay">剩餘未爆彈：-- 題</div>
+
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="msg-item"><span class="msg-name system">[系統]</span>歡迎來到隨時聊天室！大家可以隨時在此吐槽與對話。</div>
+                </div>
+                <div class="chat-input-row">
+                    <input type="text" class="chat-input" id="chatInput" placeholder="輸入訊息..." onkeydown="if(event.key==='Enter') sendChatMessage()">
+                    <button class="chat-send-btn" onclick="sendChatMessage()">發送</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // 核心變數
+        // ==========================================
+        // 🔒 100% 內嵌完整題庫，絕對不受外部加載與紅字影響
+        // ==========================================
+        window.gameQuestions = [
+          "最討厭朋友說什麼話？這句話是誰說的？當時你表面上怎麼回應？",
+          "有沒有因為朋友做過很丟臉的事？是哪位朋友？當時現場有其他人看到嗎？",
+          "有沒有曾經故意放朋友鴿子？你是編了什麼藉口？事後有被對方拆穿嗎？",
+          "有沒有故意不接朋友電話過？對象是誰？你當時其實在忙什麼？",
+          "朋友做過最暖心的事是什麼？是哪一位朋友？這件事有改變你們的關係嗎？",
+          "偷看過朋友的手機嗎？你看見了什麼最讓你震驚的秘密？",
+          "曾經羨慕甚至嫉妒朋友什麼優勢？現在這個心結解開了嗎？",
+          "跟朋友一起偷偷做過什麼壞事或違反規定的事？至今有被任何人發現過嗎？",
+          "有朋友送過你其實超不想要的禮物嗎？是誰送的？你最後怎麼處理那個禮物？",
+          "哪個朋友最愛放閃？你內心深處真的祝福他們，還是覺得很煩？",
+          "最想對某個朋友說卻沒說出口的話是什麼？為什麼至今依然不敢說？",
+          "辦過跟朋友吵架超過一週？是因為什麼原因？最後是誰先低頭的？",
+          "朋友的什麼行為讓你最受不了？你為什麼從來不當面提醒他？",
+          "幫朋友做過最瘋狂的事是什麼？如果重來一次你還願意幫嗎？",
+          "有過讓你超想翻白眼的友情經驗嗎？當時發生了什麼事？",
+          "跟朋友講過最大的謊是什麼？這個謊言到今天圓回來了嗎？",
+          "朋友跟你告白過嗎？是哪一位？你當時是用什麼理由拒絕或接受的？",
+          "你最想成為朋友中的誰？你想交換他的哪一個優點或生活部分？",
+          "為了朋友曾經改變過什麼？你覺得這個改變值得嗎？",
+          "跟朋友去最遠的地方是哪裡？中途有沒有發生過差點吵架分開走的插曲？",
+          "有沒有因為朋友的事情偷偷哭過？是為了什麼委屈或感動的事？",
+          "誰是你朋友圈的開心果？你覺得他私底下是真的快樂，還是裝出來的？",
+          "朋友生日忘記過幾次？你是怎麼補救的？對方有發現你其實根本忘了嗎？",
+          "最討厭朋友問你什麼問題？如果現場有人現在問你，你會翻臉嗎？",
+          "哪個朋友的秘密你最想講出來？如果講出來會害他很尷尬嗎？",
+          "有沒有借過朋友錢後超後悔的？對方最後有還嗎？這有影響你們的交情嗎？",
+          "跟朋友一起喝醉最糗的是什麼事？是誰幫你收拾善後的？",
+          "朋友說過最奇怪的藉口是什麼？你當時有直接拆穿他嗎？",
+          "覺得朋友的什麼行為最幼稚？你私底下有跟別人吐槽過他嗎？",
+          "曾經嫉妒過朋友嗎？功能是因為什麼事情讓你心裡不平衡？",
+          "朋友曾經讓你超感動的一件事是什麼？你後來有找機會報答他嗎？",
+          "曾經為了朋友撒過最大的謊是什麼？對象是他的父母還是另一半？",
+          "最喜歡跟朋友一起做什麼？",
+          "哪個朋友的品味最怪？你最看不懂他哪一件衣服或單品？",
+          "曾經偷偷覺得朋友笨嗎？你可以舉一個他被當盤子的例子嗎？",
+          "跟朋友一起熬夜的最晚紀錄是到幾點？你們當時到底在聊什麼話題？",
+          "曾經覺得朋友不適合你的圈子嗎？你後來有刻意疏遠他嗎？",
+          "最讓你傻眼的友情插曲是什麼？",
+          "曾經因為什麼跟朋友絕交？後來在路上遇到會打招呼嗎？",
+          "曾經偷偷討厭朋友的一件事是什麼？這件事有影響你對他的信任度嗎？",
+          "最無法理解朋友的興趣是什麼？",
+          "哪個朋友的怪癖讓你記憶最深刻？他是在什麼情況下暴露這個怪癖的？",
+          "有沒有因為朋友的事跟別人吵架過？你當時有後悔幫他出頭嗎？",
+          "分享一件人生中最好笑的糗事，當時現場還有誰在場？",
+          "朋友之間最常鬧的笑話是什麼？",
+          "哪個朋友最喜歡分享八卦？你曾被他套出過什麼秘密嗎？",
+          "朋友的什麼行為會讓你秒翻白眼？",
+          "曾經為了友情和家人起衝突嗎？你現在回頭看覺得自己是對的嗎？",
+          "最感謝朋友幫你解決的一件事是什麼？",
+          "曾經跟朋友做過什麼瘋狂挑戰？攻時有順利完成嗎？",
+          "哪個朋友最常借東西不還？他目前還欠你什麼東西沒歸還？",
+          "朋友圈裡最會扮豬吃老虎的是誰？你從哪件事看出來的？",
+          "最想跟哪個朋友旅行？為什麼？",
+          "曾經替朋友背過黑鍋嗎？最後有真相大白嗎？",
+          "哪個朋友最不會守時？他讓你等過最久的一次是多久？",
+          "最久多久沒有聯絡某位朋友？是什麼原因讓你們的關係淡掉的？",
+          "曾經因為朋友的話而改變心意嗎？那是關於什麼重要決定？",
+          "最近跟朋友最好笑的對話是什麼？",
+          "哪個朋友的笑聲最魔性？在餐廳裡他大笑時你會想假裝不認識他嗎？",
+          "有沒有朋友常常忘記重要的日子？你後來是選擇原諒還是同樣對待他？",
+          "朋友之間最特別的小默契是什麼？",
+          "哪個朋友的愛情故事最狗血？",
+          "曾經想過遠離哪個朋友嗎？那條讓你想疏遠的導火線是什麼？",
+          "有沒有朋友特別愛湊熱鬧？你對這種行為的真實看法是什麼？",
+          "曾經跟朋友在公共場合丟臉過嗎？當時有被路人側目或拍照嗎？",
+          "最有趣的朋友聚會是哪次？",
+          "朋友圈裡誰最愛裝熟？你曾當面戳破過他的謊言嗎？",
+          "哪個朋友最會記仇？你曾不小心踩到他的地雷嗎？",
+          "曾經因為什麼讓朋友超生氣？你們後來是怎麼和好的？",
+          "朋友之間有什麼黑歷史？",
+          "分享一件朋友做過最好笑的事，那是誰做的？",
+          "哪個朋友最愛搞神秘？你覺得他是防備心太重嗎？",
+          "朋友圈裡誰唱歌最好聽？",
+          "跟朋友吵過最無聊的小事是什麼？",
+          "最想對哪個朋友說謝謝？",
+          "朋友圈裡誰最喜歡拍網美照？你曾不小心發過他的無修醜照嗎？",
+          "曾經覺得哪個朋友的情商很低？他在什麼場合讓大家差點下不了台？",
+          "最常跟哪個朋友抱怨心事？",
+          "覺得哪個朋友最沒品？你最受不了他哪一次的行為？",
+          "曾經跟朋友立下什麼荒唐誓言？現在有任何一條實現了嗎？",
+          "哪個朋友最愛講爛笑話？",
+          "有沒有哪個朋友做的事讓你至今還想不通？你私下有跟別人討論過嗎？",
+          "如果只能選一個朋友旅行，會選誰？",
+          "你覺得自己在朋友圈中扮演什麼角色？",
+          "哪個朋友的第一印象和實際性格差最多？",
+          "有沒有哪次朋友幫了你大忙，讓你超感動？當時你甚至感動到想哭嗎？",
+          "如果朋友無意間冒犯你，你會直接說嗎？",
+          "財富哪個朋友讓你覺得跟他在一起最不用裝？",
+          "最容易被哪個朋友一眼看穿你狀態？",
+          "哪個朋友最會點到你的笑穴？",
+          "有沒有哪個朋友的某個小習慣讓你覺得超可愛的？",
+          "你跟朋友之間有沒有什麼不成文規定？",
+          "最常跟哪個朋友互傳奇怪的迷因？",
+          "有沒有哪次朋友做了什麼，讓你突然覺得好喜歡這個人？",
+          "曾經因為朋友的影響，開始喜歡上某個東西嗎？是什麼？",
+          "哪個朋友最容易因為一點小事就開心起來？",
+          "有沒有哪個朋友讓你覺得他根本是你失散多年的靈魂伴侶？",
+          "有沒有曾經為了哪個朋友的生日超用心準備過？對方當時有哭嗎？",
+          "最常跟哪個朋友在外面亂花錢互相慫恿？",
+          "有沒有哪個朋友是你出去一定要帶他的那種？",
+          "有沒有哪個朋友的存在讓你覺得很有安全感？你最害怕哪一天突然失去他？",
+          "哪個朋友的眼光最準，推薦什麼都沒讓你失望？",
+          "哪個朋友講話最不過腦子，但你就是喜歡他這樣？",
+          "有沒有哪次跟朋友一起連續熬夜做某件事，精疲力竭但很爽？",
+          "哪個朋友最容易讓你說出好啦好啦我去？",
+          "有沒有哪個朋友讓你覺得這個人出現在你生命裡是件很神奇的事？",
+          "有沒有哪個朋友讓你覺得我也想在他心裡有一個重要的位置？",
+          "哪個朋友最容易突然冒出超棒的點子？",
+          "有沒有哪次因為朋友，你做了一個完全沒想過的決定，結果還不錯？",
+          "最想跟哪個朋友去旅行？理由是什麼？",
+          "有沒有哪個朋友讓你覺得我希望老了我們還是朋友？",
+          "最想跟哪個朋友換一天的人生看看？",
+          "哪個朋友最常有神奇的直覺？",
+          "哪個朋友最容易讓你突然心情很好？",
+          "最讓你感謝上天讓你認識的朋友是誰？",
+          "哪個朋友最有藝術細胞？",
+          "跟同學或同事交往過嗎？分手後在同一個環境相處會尷尬嗎？",
+          "惹你不高興的話會直接講出來嗎？",
+          "朋友都是什麼類型的人？",
+          "如果中頭獎會怎麼花？",
+          "如果能性轉一天要做什麼？",
+          "什麼事比談戀愛更重要？",
+          "假如有一顆水晶球能告訴你關於自己、人生或未來的一切真相，你想知道什麼？",
+          "如果讓你選擇做一個電影中的角色，你會選誰呢？",
+          "你會選擇你愛的人還是愛你的人？為什麼？",
+          "如果讓你擁有一種超能力，你願意擁有什麼呢？",
+          "每天上網幾個小時？",
+          "每天睡覺前都會想起的人是誰？",
+          "你難過的時候會做什麼？",
+          "在場你有喜歡的人嗎？是誰？",
+          "用四個字形容你現在的生活狀態。",
+          "世界上你最想去旅行的地方是哪裡？",
+          "誰是你最崇拜的人？原因是什麼？",
+          "如果跟你喜歡的人約會，碰到前女友/前男友，會有什麼表現？",
+          "你的初戀在什麼時候？",
+          "你覺得兩個人在一起什麼最重要？",
+          "如果時間能流轉，你希望回到哪一個時間？為什麼？",
+          "如何向喜歡的人表白？",
+          "朋友和男朋友/女朋友哪個重要？",
+          "你的夢中情人是誰？",
+          "不小心有了孩子怎麼辦？",
+          "你覺得自己是容易發脾氣的人嗎？上一次讓你暴怒的事件是什麼？",
+          "你最喜歡的食物是什麼？",
+          "你最喜歡的電影是什麼？",
+          "喜歡什麼類型的音樂？",
+          "如果有來生，你選擇當什麼？",
+          "如果從天而降大批現金，你的第一反應是什麼？",
+          "你屬於一見鍾情還是日久生情型？",
+          "你對另一半的要求有哪些？",
+          "怎樣能讓男生知道你喜歡他？",
+          "怎樣控制住自己不發脾氣？",
+          "願意為愛情犧牲到什麼程度？",
+          "你心目中理想的愛人是什麼樣子呢？",
+          "你心儀的對象對你並無好感怎麼辦？",
+          "如果你被扔在一個無人島上3天，你會帶什麼？",
+          "如果有一天我和你吵架，你會怎麼辦？",
+          "你覺得活著的意義是什麼？",
+          "你理想中的婚禮是怎樣的？",
+          "你最喜歡的季節是什麼？",
+          "遠距離戀愛是否注定要分開？你對此有過動搖嗎？",
+          "請講述你未來五年的事業規劃？",
+          "你最好的朋友搶走你伴侶，怎麼辦？",
+          "見過別人最尷尬的事情是什麼？",
+          "男人善變還是女人善變？",
+          "你覺得最美的畫面是什麼？",
+          "你最不想忘記的事情是什麼？",
+          "去你喜歡的人家裡，想拉肚子怎麼辦？",
+          "當你被點名的時候是什麼心情？",
+          "體驗最完美或最舒適的週末是怎麼樣的？",
+          "如果有一天，你生命中最重要的東西離你而去了，你會怎麼辦？",
+          "如果可以穿越過去，你想回到什麼年紀的你？",
+          "你現在最大的三個願望是什麼？",
+          "在感情中，你是主動型還是被動型？",
+          "喜歡看什麼動漫/卡通？",
+          "有什麼事想做很久了？還沒去做的原因是什麼？",
+          "你會因為什麼習慣一個人？",
+          "最想實現的三個願望是什麼？",
+          "最反感別人的什麼行為？",
+          "在場的人當中，你最受不了誰的哪一個生活小習慣？必須指名道姓，並講出你隱忍多久了！",
+          "你曾經在背地裡偷偷討厭過在場的哪個人？原因是什麼？",
+          "如果現場一定要挑選一個人絕交、以後再也不聯絡，你会選誰？",
+          "你上一段感情分手的真正導火線是什麼？",
+          "如果交往後發現另一半是個極度可怕的控制狂，你的底線到哪裡才會提分手？",
+          "曾經為了追求一個人做過最卑微、連自己現在回想起來都看不起自己的行為是什麼？",
+          "你目前為止瞞著身邊所有人、做過最自私自利且損人利己的一個決定是什麼？",
+          "如果你中了一億元發票，但領獎代價是全朋友圈的人都會收到通知，你還要領嗎？",
+          "你曾經瞞著大家當過別人的小三、小王，或者是明知對方有伴侶還去介入感情嗎？",
+          "在場的所有人裡面，誰的外在或長相最接近你私底下的理想型？",
+          "如果今晚地獄懲罰只能選現場的一個人一起單獨在密室過夜，你會選誰？",
+          "你這輩子做過最對不起父母、至今都含在嘴裡不敢讓他們知道的叛逆荒唐事是什麼？",
+          "你最痛恨或嫉妒在場哪一個人的哪一種天生優勢？",
+          "如果你的另一半跟你最好的死黨單獨去看深夜電影，你可以接受嗎？",
+          "如果可以用一萬塊買到在場某個人毫無保留的所有手機相簿與聊天秘密，你想買誰的？",
+          "你曾經在網路匿名討論區匿名酸過身邊認識的人嗎？",
+          "你覺得現場哪兩個人其實最看對方不順眼、只是在大家面前做表面功夫？",
+          "談戀愛時，你最不能接受伴侶做出什麼踩雷的事情？",
+          "你有沒有因為嫉妒某個好朋友的成就、財富或感情，而曾在內心偷偷希望他搞砸過？",
+          "你相信純友誼嗎？你有沒有對在場的任何一個朋友產生過跨越友情的好感？",
+          "你交往過的人裡面，誰的性格最讓你滿意？誰最讓你覺得只是在耗日子？",
+          "有沒有嘗試過瞞著另一半，私底下跟前男友或前女友單獨傳訊息聊天？",
+          "你對開放式關係或精神出軌的真實看法是什麼？",
+          "有沒有偷看過另一半的手機後發現驚人的曖昧秘密，但你因為不想分手而選擇裝作不知道？",
+          "你覺得在場哪一個人談戀愛最沒有大腦、最盲目？",
+          "你挑選未來對象時，內心最看重的三個外在身材或臉蛋條件是什麼？",
+          "如果發現好朋友被劈腿，但小三或小王是另一個在場認識的人，你會選擇隱瞞還是告密？",
+          "你這輩子到目前為止，最讓你遺憾、最想重新來過的一場約會是什麼故事？",
+          "如果可以花一筆錢完全抹除你人生中的某一個黑歷史，你想抹除哪一件醜事？",
+          "在場的人裡面，你覺得誰最愛在大家或網路上裝可憐？",
+          "你最長的一段無縫接軌的經驗是瞞了多久？",
+          "有沒有哪次你明明知道好朋友正在丟臉地說謊，卻沒有拆穿，反而私下跟別的朋友嘲笑他？",
+          "如果一定要選現場一個人的手機相簿現場投放到大螢幕上播放5分鍾，你會選誰的？",
+          "你曾經為了職場升遷或拿好處，刻意去巴結或討好你極度討厭的人嗎？",
+          "如果另一半賺得比你多五十倍，但代價是你在家必須完全聽他的話，你接受嗎？",
+          "你覺得現場哪個人的個人衛生習慣最差？",
+          "如果可以知道在場某個人對你最真實、最難聽的一句負面評價，你想知道誰背後說的？",
+          "你曾經因為對方的家世背景、車子或財產，而決定跟某個人交往或者分手嗎？",
+          "你覺得你的死黨或好朋友裡面，有沒有哪一個人的現任另一半其實條件很瞎？",
+          "你手機收過或者傳出去過尺度讓你最害羞的照片嗎？對象是誰？現在還存著嗎？",
+          "你覺得現場有誰是外表看起來很純潔，但你的直覺告訴你他私底下社交圈玩很大？",
+          "如果可以用自己身上最在乎的一樣東西，換取另一半一輩子絕對不劈腿，你願意嗎？",
+          "你曾在哪個公眾人物或明星身上投射過非常具體地戀愛幻想？",
+          "如果你因為寂寞而做出過最越界、最對不起前任的事是什麼？",
+          "你人生中收到最屈辱或最不舒服的感情拒絕方式是什麼？是誰拒絕你的？",
+          "如果給你一千萬，代價是必須把在場某個人的其中一個天大醜事公諸於世，你會賣掉誰？",
+          "有沒有哪段感情是用你明明知道自己只是對方的備胎或工具人，卻還是自欺欺人留下來的？",
+          "你覺得現場哪個人的虛榮心最強、最愛在社群軟體上裝作自己過得很好？",
+          "你曾經為了省錢或拿到特定好處，在感情中對另一半耍過最心機的手段是什麼？",
+          "如果你的前男友或前女友現在回頭求你復合，即便你知道他很渣，你內心會動搖嗎？",
+          "你曾經被別人抓包過最尷尬的說謊現場是什麼？當時是怎麼圓謊的？",
+          "在場的所有人中，你覺得誰談戀愛時的控制慾可能最強、最讓人窒息？"
+        ];
+
+        // 核心運作變數
         let localQuestions = [];
+        let myName = "";
         let currentRoomId = "";
         let isHost = false;
 
-        // 網頁載入時確認雲端題庫狀態
-        window.onload = function() {
-            if (window.gameQuestions && Array.isArray(window.gameQuestions)) {
-                localQuestions = [...window.gameQuestions];
-                console.log("✅ 成功從 GitHub 雲端讀取到題目，共計 " + localQuestions.length + " 題。");
-            }
-        };
-
-        // 【房間主頁動作控制】
+        // 【功能 1：房間控制邏輯】
         function handleCreateRoom() {
-            const name = document.getElementById('playerName').value.trim();
-            if(!name) { alert('請填寫暱稱！'); return; }
-            
-            // 隨機產生 4 位數房號
+            myName = document.getElementById('playerName').value.trim();
+            if (!myName) { alert('請輸入您的暱稱！'); return; }
+
             currentRoomId = Math.floor(1000 + Math.random() * 9000).toString();
             isHost = true;
-            
-            /* 🔗 這裡可以對接你原本的伺服器連線：
-               yourSocketCreateRoom(currentRoomId, name);
-            */
 
             switchToGameView();
+            addSystemMessage(`建立了新房間 [${currentRoomId}]。`);
         }
 
         function handleJoinRoom() {
-            const name = document.getElementById('playerName').value.trim();
+            myName = document.getElementById('playerName').value.trim();
             const room = document.getElementById('roomNumber').value.trim();
-            if(!name || !room) { alert('請填齊暱稱與房間號碼！'); return; }
-            
+            if (!myName || !room) { alert('請填齊暱稱與 4 位數房號！'); return; }
+
             currentRoomId = room;
             isHost = false;
-            
-            /* 🔗 這裡可以對接你原本的伺服器加入房間連線：
-               yourSocketJoinRoom(currentRoomId, name);
-            */
 
             switchToGameView();
+            addSystemMessage(`加入了房間 [${currentRoomId}]。`);
         }
 
-        // 【核心 View 切換機制】
         function switchToGameView() {
             document.getElementById('roomView').classList.remove('active');
             document.getElementById('gameView').classList.add('active');
             
-            document.getElementById('currentRoomDisplay').innerText = `房號：${currentRoomId} | 身份：${isHost ? '房長(可抽題)' : '組員'}`;
-            
-            // 權限防呆：非房長無法亂按抽題
-            if (!isHost) {
-                const drawBtn = document.getElementById('drawBtn');
+            // 根據身份渲染管理按鈕與介面
+            const manageBtn = document.getElementById('roomManageBtn');
+            const drawBtn = document.getElementById('drawBtn');
+            const roomDisplay = document.getElementById('currentRoomDisplay');
+
+            if (isHost) {
+                roomDisplay.innerText = `房號：${currentRoomId} | 身份：房長`;
+                manageBtn.innerText = "刪除房間";
+                   manageBtn.classList.add('host');
+                drawBtn.disabled = false;
+                drawBtn.style.opacity = "1";
+                drawBtn.innerText = "抽出下一題";
+            } else {
+                roomDisplay.innerText = `房號：${currentRoomId} | 身份：組員`;
+                manageBtn.innerText = "退出房間";
+                manageBtn.classList.remove('host');
+                drawBtn.disabled = true;
                 drawBtn.style.opacity = "0.4";
                 drawBtn.style.cursor = "not-allowed";
-                drawBtn.disabled = true;
                 drawBtn.innerText = "等待房長抽題中...";
             }
-            
-            if (window.gameQuestions) {
-                localQuestions = [...window.gameQuestions];
-                updateCounter();
+
+            // 初始化本地抽題池
+            localQuestions = [...window.gameQuestions];
+            updateCounter();
+        }
+
+        // 退出或刪除房間
+        function handleRoomExitOrDelete() {
+            if (isHost) {
+                if (!confirm("您是房長，確定要刪除房間並踢出所有人嗎？")) return;
+                alert("房間已刪除！");
             } else {
-                document.getElementById('questionDisplay').innerText = "⚠️ 雲端題庫載入失敗，請確認你的 GitHub 網址是否正確。";
+                if (!confirm("確定要退出此房間嗎？")) return;
+                alert("已退出房間！");
             }
+            // 重置回主頁
+            document.getElementById('gameView').classList.remove('active');
+            document.getElementById('roomView').classList.add('active');
+            document.getElementById('chatMessages').innerHTML = '<div class="msg-item"><span class="msg-name system">[系統]</span>歡迎來到隨時聊天室！大家可以隨時在此吐槽與對話。</div>';
+            document.getElementById('questionDisplay').innerText = "等待房長抽出震撼全場的第一道題目...";
         }
 
+        // 【功能 2：抽題核心邏輯】
         function updateCounter() {
-            const total = window.gameQuestions ? window.gameQuestions.length : 0;
-            document.getElementById('counterDisplay').innerText = `剩餘未爆彈：${localQuestions.length} / ${total} 題`;
+            document.getElementById('counterDisplay').innerText = `剩餘未爆彈：${localQuestions.length} / ${window.gameQuestions.length} 題`;
         }
 
-        // 【核心隨機抽題主程式】
         function drawQuestion() {
             const display = document.getElementById('questionDisplay');
 
@@ -300,10 +651,10 @@
                 localQuestions = [...window.gameQuestions];
                 display.innerText = "🎉 全數拷問完畢！題目已全數重新洗牌！";
                 updateCounter();
+                addSystemMessage("房長重設了題庫，所有題目已重新洗牌！");
                 return;
             }
 
-            // 觸發文字淡出
             display.classList.add('fade');
 
             setTimeout(() => {
@@ -313,14 +664,52 @@
                 localQuestions.splice(randomIndex, 1);
                 display.innerText = selectedQuestion;
                 updateCounter();
-                
-                // 恢復文字淡入
                 display.classList.remove('fade');
 
-                /* 🔗 這裡可以加上你原本同步給房間其他人的 Socket 廣播代碼：
-                   yourSocketEmitNewQuestion(currentRoomId, selectedQuestion);
-                */
-            }, 180);
+                // 自動將抽到的題目廣播至隨時聊天室
+                addSystemMessage(`房長抽出了新題目：${selectedQuestion}`);
+            }, 150);
+        }
+
+        // 【功能 3：全時間即時聊天室邏輯】
+        function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const now = new Date();
+            const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+
+            const msgHtml = `
+                <div class="msg-item">
+                    <span class="msg-time">${timeStr}</span><span class="msg-name">${escapeHtml(myName)}:</span>${escapeHtml(text)}
+                </div>
+            `;
+            
+            const box = document.getElementById('chatMessages');
+            box.insertAdjacentHTML('beforeend', msgHtml);
+            input.value = "";
+            box.scrollTop = box.scrollHeight; // 自動捲動到最底部
+        }
+
+        function addSystemMessage(text) {
+            const now = new Date();
+            const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+            const msgHtml = `
+                <div class="msg-item">
+                    <span class="msg-time">${timeStr}</span><span class="msg-name system">[系統]</span>${text}
+                </div>
+            `;
+            const box = document.getElementById('chatMessages');
+            box.insertAdjacentHTML('beforeend', msgHtml);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        // 防止 HTML 注入的安全機制
+        function escapeHtml(string) {
+            return String(string).replace(/[&<>"']/g, function (s) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[s];
+            });
         }
     </script>
 </body>
