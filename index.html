@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🤫 真心話大冒險 - 極致抽題器</title>
+    <title>🤫 真心話大冒險 - 雲端連線版</title>
     
-    <script src="ques.js"></script>
+    <script src="https://raw.githubusercontent.com/gc-apps-tw/tod/refs/heads/main/ques.json"></script>
     
     <style>
-        /* 基礎樣式與 RWD 重設 */
+        /* 全域重設與 RWD 防破版 */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            -webkit-tap-highlight-color: transparent; /* 移除手機點擊藍色陰影 */
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -28,22 +28,21 @@
             padding: 20px;
         }
 
-        /* 遊戲主容器 RWD 優化 */
+        /* 核心大圓角卡片 */
         .game-card {
             background: rgba(30, 30, 40, 0.75);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.08);
             width: 100%;
-            max-width: 540px;
+            max-width: 500px;
             padding: 40px 24px;
-            border-radius: 24px; /* 完美大圓角 */
+            border-radius: 24px; /* 現代感大圓角 */
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
             text-align: center;
             transition: all 0.3s ease;
         }
 
-        /* 標題優化 */
         h1 {
             font-size: 1.8rem;
             font-weight: 800;
@@ -54,61 +53,122 @@
             letter-spacing: 1px;
         }
 
-        /* 核心題目框（圓角、霓虹微光、轉場動畫） */
+        /* 控制 View 顯示或隱藏 */
+        .view {
+            display: none;
+        }
+        .view.active {
+            display: block;
+        }
+
+        /* ================= 【View 1: 房間系統主頁樣式】 ================= */
+        .room-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 10px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 0.9rem;
+            color: #a4b0be;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 20px;
+            font-size: 1.1rem;
+            border-radius: 14px; /* 輸入框圓角化 */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.3);
+            color: #fff;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            border-color: #ff4757;
+        }
+
+        /* ================= 【View 2: 核心抽題畫面樣式】 ================= */
+        .room-info {
+            font-size: 0.95rem;
+            color: #ff6b81;
+            margin-bottom: 20px;
+            font-weight: bold;
+            background: rgba(255, 71, 87, 0.1);
+            padding: 8px 16px;
+            border-radius: 50px;
+            display: inline-block;
+        }
+
         .question-box {
             font-size: 1.35rem;
             font-weight: 600;
             line-height: 1.6;
             color: #f1f2f6;
-            min-height: 150px;
+            min-height: 160px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin-bottom: 35px;
             padding: 24px;
-            background: rgba(255, 255, 255, 0.04);
-            border-radius: 18px; /* 圓角優化 */
-            border: 1px solid rgba(255, 71, 87, 0.2);
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 18px; /* 題目框圓角 */
+            border: 1px solid rgba(255, 71, 87, 0.25);
             box-shadow: inset 0 0 20px rgba(255, 71, 87, 0.05);
             word-break: break-all;
             
-            /* 文字淡入動畫 */
+            /* 切換題目時的絲滑轉場 */
             opacity: 1;
-            transition: opacity 0.2s ease-in-out;
+            transition: opacity 0.18s ease-in-out;
         }
 
         .question-box.fade {
             opacity: 0;
         }
 
-        /* 頂級 Q 彈大圓角抽題按鈕 */
-        .draw-btn {
-            background: linear-gradient(135deg, #ff4757 0%, #e84118 100%);
+        /* 通用頂級大圓角膠囊按鈕 */
+        .main-btn {
             color: #ffffff;
             border: none;
-            padding: 16px 45px;
-            font-size: 1.2rem;
+            padding: 16px 40px;
+            font-size: 1.15rem;
             font-weight: 700;
-            border-radius: 50px; /* 膠囊形流線圓角 */
+            border-radius: 50px; /* 超流線膠囊圓角 */
             cursor: pointer;
-            width: 85%;
+            width: 100%;
             max-width: 280px;
+            margin: 0 auto;
             outline: none;
-            box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4);
-            transition: transform 0.1s ease, box-shadow 0.2s ease, background 0.2s;
+            display: block;
+            transition: transform 0.1s ease, box-shadow 0.2s ease;
         }
 
-        .draw-btn:hover {
-            box-shadow: 0 8px 25px rgba(255, 71, 87, 0.6);
+        .btn-primary {
+            background: linear-gradient(135deg, #ff4757 0%, #e84118 100%);
+            box-shadow: 0 6px 20px rgba(255, 71, 87, 0.35);
         }
 
-        /* 手機點擊時的Q彈縮放物理回饋 */
-        .draw-btn:active {
-            transform: scale(0.94);
-            box-shadow: 0 3px 10px rgba(255, 71, 87, 0.3);
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            margin-top: 8px;
         }
 
-        /* 底部狀態計數器 */
+        /* 點擊時的手機震動縮放回饋 */
+        .main-btn:active {
+            transform: scale(0.95);
+        }
+
         .status-bar {
             margin-top: 25px;
             font-size: 0.85rem;
@@ -116,23 +176,12 @@
             letter-spacing: 0.5px;
         }
 
-        /* RWD 斷點微調（針對小螢幕手機如 iPhone SE） */
+        /* RWD 手機版優化斷點 */
         @media (max-width: 375px) {
-            .game-card {
-                padding: 30px 16px;
-            }
-            h1 {
-                font-size: 1.5rem;
-            }
-            .question-box {
-                font-size: 1.2rem;
-                min-height: 130px;
-                padding: 16px;
-            }
-            .draw-btn {
-                font-size: 1.1rem;
-                padding: 14px 35px;
-            }
+            .game-card { padding: 30px 16px; }
+            h1 { font-size: 1.5rem; }
+            .question-box { font-size: 1.2rem; min-height: 130px; }
+            .main-btn { font-size: 1.1rem; padding: 14px 30px; }
         }
     </style>
 </head>
@@ -141,71 +190,138 @@
     <div class="game-card">
         <h1>🤫 真心話時間</h1>
         
-        <div class="question-box" id="questionDisplay">
-            準備好了嗎？點擊下方按鈕，開啟驚悚刺激的真心話對決！
+        <div id="roomView" class="view active">
+            <div class="room-form">
+                <div class="input-group">
+                    <label>玩家暱稱</label>
+                    <input type="text" id="playerName" placeholder="請輸入你的暱稱...">
+                </div>
+                <div class="input-group">
+                    <label>房間號碼 (加入已建立房間請填)</label>
+                    <input type="text" id="roomNumber" placeholder="請輸入4位數房號...">
+                </div>
+                <button class="main-btn btn-primary" style="margin-top: 10px;" onclick="handleCreateRoom()">建立新房間</button>
+                <button class="main-btn btn-secondary" onclick="handleJoinRoom()">加入已有房間</button>
+            </div>
         </div>
 
-        <button class="draw-btn" onclick="drawQuestion()">抽出下一題</button>
-        
-        <div class="status-bar" id="counterDisplay">剩餘珍貴題目：-- 題</div>
+        <div id="gameView" class="view">
+            <div class="room-info" id="currentRoomDisplay">房間號碼：---- | 身份：----</div>
+            
+            <div class="question-box" id="questionDisplay">
+                正在等待房長抽出震撼全場的第一道題目...
+            </div>
+
+            <button class="main-btn btn-primary" id="drawBtn" onclick="drawQuestion()">抽出下一題</button>
+            
+            <div class="status-bar" id="counterDisplay">剩餘珍貴題目：-- 題</div>
+        </div>
     </div>
 
     <script>
-        // 本地抽題池（防止重複）
+        // 核心變數
         let localQuestions = [];
+        let currentRoomId = "";
+        let isHost = false;
 
-        // 初始化檢查題庫
+        // 網頁載入時確認雲端題庫狀態
         window.onload = function() {
-            initPool();
+            if (window.gameQuestions && Array.isArray(window.gameQuestions)) {
+                localQuestions = [...window.gameQuestions];
+                console.log("✅ 成功從 GitHub 雲端讀取到題目，共計 " + localQuestions.length + " 題。");
+            }
         };
 
-        function initPool() {
-            if (window.gameQuestions && Array.isArray(window.gameQuestions)) {
+        // 【房間主頁動作控制】
+        function handleCreateRoom() {
+            const name = document.getElementById('playerName').value.trim();
+            if(!name) { alert('請填寫暱稱！'); return; }
+            
+            // 隨機產生 4 位數房號
+            currentRoomId = Math.floor(1000 + Math.random() * 9000).toString();
+            isHost = true;
+            
+            /* 🔗 這裡可以對接你原本的伺服器連線：
+               yourSocketCreateRoom(currentRoomId, name);
+            */
+
+            switchToGameView();
+        }
+
+        function handleJoinRoom() {
+            const name = document.getElementById('playerName').value.trim();
+            const room = document.getElementById('roomNumber').value.trim();
+            if(!name || !room) { alert('請填齊暱稱與房間號碼！'); return; }
+            
+            currentRoomId = room;
+            isHost = false;
+            
+            /* 🔗 這裡可以對接你原本的伺服器加入房間連線：
+               yourSocketJoinRoom(currentRoomId, name);
+            */
+
+            switchToGameView();
+        }
+
+        // 【核心 View 切換機制】
+        function switchToGameView() {
+            document.getElementById('roomView').classList.remove('active');
+            document.getElementById('gameView').classList.add('active');
+            
+            document.getElementById('currentRoomDisplay').innerText = `房號：${currentRoomId} | 身份：${isHost ? '房長(可抽題)' : '組員'}`;
+            
+            // 權限防呆：非房長無法亂按抽題
+            if (!isHost) {
+                const drawBtn = document.getElementById('drawBtn');
+                drawBtn.style.opacity = "0.4";
+                drawBtn.style.cursor = "not-allowed";
+                drawBtn.disabled = true;
+                drawBtn.innerText = "等待房長抽題中...";
+            }
+            
+            if (window.gameQuestions) {
                 localQuestions = [...window.gameQuestions];
                 updateCounter();
             } else {
-                document.getElementById('questionDisplay').innerHTML = "<span style='color: #eed202;'>⚠️ 偵測不到題庫！<br>請確認 GitHub 上的題目檔名是否已改為 <b>ques.js</b> 且內容格式正確！</span>";
+                document.getElementById('questionDisplay').innerText = "⚠️ 雲端題庫載入失敗，請確認你的 GitHub 網址是否正確。";
             }
         }
 
         function updateCounter() {
-            document.getElementById('counterDisplay').innerText = `剩餘未爆彈：${localQuestions.length} / ${window.gameQuestions ? window.gameQuestions.length : 0} 題`;
+            const total = window.gameQuestions ? window.gameQuestions.length : 0;
+            document.getElementById('counterDisplay').innerText = `剩餘未爆彈：${localQuestions.length} / ${total} 題`;
         }
 
+        // 【核心隨機抽題主程式】
         function drawQuestion() {
             const display = document.getElementById('questionDisplay');
 
-            if (!window.gameQuestions) {
-                display.innerText = "錯誤：抓取不到 window.gameQuestions，請檢查 ques.js。";
-                return;
-            }
-
-            // 如果全部抽完了，自動重置
             if (localQuestions.length === 0) {
                 localQuestions = [...window.gameQuestions];
-                display.innerText = "🎉 太狂了！所有題目通通被你們拷問完了！重新洗牌！";
+                display.innerText = "🎉 全數拷問完畢！題目已全數重新洗牌！";
                 updateCounter();
                 return;
             }
 
-            // 加入淡出動畫效果
+            // 觸發文字淡出
             display.classList.add('fade');
 
             setTimeout(() => {
-                // 隨機抽選
                 const randomIndex = Math.floor(Math.random() * localQuestions.length);
                 const selectedQuestion = localQuestions[randomIndex];
 
-                // 自抽題池移除
                 localQuestions.splice(randomIndex, 1);
-
-                // 塞入新題目並淡入顯示
                 display.innerText = selectedQuestion;
                 updateCounter();
+                
+                // 恢復文字淡入
                 display.classList.remove('fade');
-            }, 180); // 動畫絲滑切換間隔
+
+                /* 🔗 這裡可以加上你原本同步給房間其他人的 Socket 廣播代碼：
+                   yourSocketEmitNewQuestion(currentRoomId, selectedQuestion);
+                */
+            }, 180);
         }
     </script>
-
 </body>
 </html>
